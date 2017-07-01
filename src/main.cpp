@@ -16,7 +16,7 @@ void resubscribe() {
 }
 
 void setup() {
-	Serial.begin(115200);
+  Serial.begin(115200);
   Serial.println("Main Setup");
   Serial.println(CLIENT_ID);
   net.setClientID(CLIENT_ID);
