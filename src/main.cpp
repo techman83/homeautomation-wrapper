@@ -19,11 +19,11 @@ void setup() {
   Serial.begin(115200);
   Serial.println("Main Setup");
   Serial.println(CLIENT_ID);
-  net.setClientID(CLIENT_ID);
-  net.setWiFi(WIFI_SSID, WIFI_PASS);
-  net.setCallback(&callback);
-  net.setResubscribe(&resubscribe);
-  net.netSetup();
+  net.setClientID(CLIENT_ID)
+    .setWiFi(WIFI_SSID, WIFI_PASS)
+    .setCallback(&callback)
+    .setResubscribe(&resubscribe)
+    .netSetup();
 }
 
 void loop() {
