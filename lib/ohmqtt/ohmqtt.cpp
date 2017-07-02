@@ -7,13 +7,19 @@
 
 ohmqtt::ohmqtt() {
   IPAddress broker(10,4,2,21);    // Address of the MQTT broker
-  WiFiClient wificlient;
-  this->client      = new PubSubClient(wificlient);
   this->broker      = broker;
   this->callback    = nullptr;
   this->resubscribe = nullptr;
   this->wifi_ssid   = nullptr;
   this->wifi_pass   = nullptr;
+  this->client      = nullptr;
+}
+
+ohmqtt& ohmqtt::setClient(PubSubClient* client) {
+  if (client != nullptr) {
+    this->client = client;
+  }
+  return *this;
 }
 
 ohmqtt& ohmqtt::setCallback(MQTT_CALLBACK_SIGNATURE) {

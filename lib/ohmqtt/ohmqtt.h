@@ -20,7 +20,6 @@ class ohmqtt {
 private:
   PubSubClient* client;
   IPAddress broker;
-  ESP8266WiFiClass* _WiFi;
   MQTT_CALLBACK_SIGNATURE;
   MQTT_RESUBSCRIBE_SIGNATURE;
   char* client_id;
@@ -28,6 +27,7 @@ private:
   char* wifi_pass;
 public:
   ohmqtt();
+  ohmqtt& setClient(PubSubClient* client);
   ohmqtt& setCallback(MQTT_CALLBACK_SIGNATURE);
   ohmqtt& setResubscribe(MQTT_RESUBSCRIBE_SIGNATURE);
   ohmqtt& setWiFi(const char* wifi_ssid, const char* wifi_pass);
