@@ -8,31 +8,42 @@
 ohmqtt::ohmqtt() {
   IPAddress broker(10,4,2,21);    // Address of the MQTT broker
   WiFiClient wificlient;
-  this->client = new PubSubClient(wificlient);
-  this->broker = broker;
-  setCallback(NULL);
-  setResubscribe(NULL);
-  setClientID(NULL);
+  this->client      = new PubSubClient(wificlient);
+  this->broker      = broker;
+  this->callback    = nullptr;
+  this->resubscribe = nullptr;
+  this->wifi_ssid   = nullptr;
+  this->wifi_pass   = nullptr;
 }
 
 ohmqtt& ohmqtt::setCallback(MQTT_CALLBACK_SIGNATURE) {
-  this->callback = callback;
+  if (callback != nullptr) {
+    this->callback = callback;
+  }
   return *this;
 }
 
 ohmqtt& ohmqtt::setResubscribe(MQTT_RESUBSCRIBE_SIGNATURE) {
-  this->resubscribe = resubscribe;
+  if (resubscribe != nullptr) {
+    this->resubscribe = resubscribe;
+  }
   return *this;
 }
 
 ohmqtt& ohmqtt::setClientID(const char* client_id) {
-  this->client_id = client_id;
+  if (client_id != nullptr) {
+    this->client_id = strdup(client_id);
+  }
   return *this;
 }
 
 ohmqtt& ohmqtt::setWiFi(const char* wifi_ssid, const char* wifi_pass) {
-  this->wifi_ssid = wifi_ssid;
-  this->wifi_pass = wifi_pass;
+  if (wifi_ssid != nullptr) {
+    this->wifi_ssid = strdup(wifi_ssid);
+  }
+  if (wifi_pass != nullptr) {
+    this->wifi_pass = strdup(wifi_pass);
+  }
   return *this;
 }
 
@@ -52,7 +63,7 @@ void ohmqtt::netSetup() {
 
   client->setServer(broker, 1883);
   client->setCallback(callback);
-  
+
   ArduinoOTA.onStart([]() {
     Serial.println("Start");
   });
@@ -64,11 +75,26 @@ void ohmqtt::netSetup() {
   });
   ArduinoOTA.onError([](ota_error_t error) {
     Serial.printf("Error[%u]: ", error);
-    if      (error == OTA_AUTH_ERROR   ) Serial.println("Auth Failed");
-    else if (error == OTA_BEGIN_ERROR  ) Serial.println("Begin Failed");
-    else if (error == OTA_CONNECT_ERROR) Serial.println("Connect Failed");
-    else if (error == OTA_RECEIVE_ERROR) Serial.println("Receive Failed");
-    else if (error == OTA_END_ERROR    ) Serial.println("End Failed");
+    switch (error) {
+        case OTA_AUTH_ERROR:
+             Serial.println("Auth Failed");
+             break;
+        case OTA_BEGIN_ERROR:
+            Serial.println("Begin Failed");
+            break;
+        case OTA_CONNECT_ERROR:
+            Serial.println("Connect Failed");
+            break;
+        case OTA_RECEIVE_ERROR:
+            Serial.println("Receive Failed");
+            break;
+        case OTA_END_ERROR:
+            Serial.println("End Failed");
+            break;
+        default:
+            Serial.println("Unknown Error");
+            break;
+    }
   });
   ArduinoOTA.begin();
   Serial.println("Ready");
@@ -102,15 +128,15 @@ void ohmqtt::reconnect() {
 
 void ohmqtt::netLoop(){
   ArduinoOTA.handle();
-  if (WiFi.status() != WL_CONNECTED)
-  {
+  if (WiFi.status() != WL_CONNECTED) {
     Serial.print("Connecting to ");
     Serial.print(wifi_ssid);
     Serial.println("...");
     WiFi.begin(wifi_ssid, wifi_pass);
 
-    if (WiFi.waitForConnectResult() != WL_CONNECTED)
+    if (WiFi.waitForConnectResult() != WL_CONNECTED) {
       return;
+    }
     Serial.println("WiFi connected");
   }
 
@@ -120,7 +146,7 @@ void ohmqtt::netLoop(){
     }
   }
 
-  if(client->connected())
-    client->loop();      
+  if(client->connected()) {
+    client->loop();
+  }
 }
-
